@@ -15,9 +15,13 @@ class VerifyId
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $id = $request->input('id');
+        $id = $request->route('alumno');
 
-        if (is_numeric($id) || $id != (int)$id || $id <= 0) {
+        if (!!!$request->route('alumno')) {
+            return $next($request);
+        }
+
+        if (!is_numeric($id) || $id != (int)$id || $id <= 0) {
             return response([
                 'success' => false,
                 'message' => 'El id no es valido.',

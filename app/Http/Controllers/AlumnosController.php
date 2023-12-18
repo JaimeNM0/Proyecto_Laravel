@@ -40,9 +40,11 @@ class AlumnosController extends Controller
         $params = $request->validate([
             'nombre' => 'required',
             'password' => 'required',
-            'email' => 'required | unique:alumnos',
+            'email' => 'required | unique:alumnos,email',
             'sexo' => 'required',
         ]);
+
+        $params['created_at'] = now();
 
         try {
             $alumno = DB::table('alumnos')->insert($params);
@@ -69,6 +71,13 @@ class AlumnosController extends Controller
         try {
             $alumno = Alumno::find($id);
 
+            if ($alumno == null) {
+                return response([
+                    'success' => false,
+                    'message' => 'El alumno no se ha encontrado.',
+                    'data' => []
+                ]);
+            }
             return response([
                 'success' => true,
                 'message' => 'El alumno se ha encontrado.',
@@ -89,11 +98,10 @@ class AlumnosController extends Controller
     public function update(Request $request, string $id)
     {
         $params = $request->validate([
-            'nombre' => 'required',
-            'password' => 'required',
-            'email' => 'required | unique:alumnos',
-            'sexo' => 'required',
+            'email' => 'unique:alumnos,email',
         ]);
+
+        $params['updated_at'] = now();
 
         try {
             $alumno = Alumno::find($id);
@@ -119,18 +127,28 @@ class AlumnosController extends Controller
     public function destroy(string $id)
     {
         try {
-            $alumno = Alumno::find($id)->delete();
+            $alumno = Alumno::find($id);
+
+            if ($alumno == null) {
+                return response([
+                    'success' => false,
+                    'message' => 'El alumno no se ha encontrado, entonces, puede estar ya borrado.',
+                    'data' => []
+                ]);
+            }
+
+            $alumno->delete();
 
             return response([
                 'success' => true,
                 'message' => 'El alumno se ha borrado correctamente.',
-                'data' => $alumno
+                'data' => []
             ]);
         } catch (Exception $e) {
             return response([
                 'success' => false,
                 'message' => 'El alumno no se ha borrado.',
-                'data' => $e
+                'data' => []
             ]);
         }
     }
