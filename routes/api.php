@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AlumnosController;
+use App\Http\Controllers\AsignaturasController;
 use App\Http\Controllers\EjerciciosController;
 use App\Http\Controllers\ProfesorsController;
 use App\Http\Middleware\VerifyId;
@@ -29,3 +30,6 @@ Route::get('profesor/{id}/alumnos', [ProfesorsController::class, 'getProfesorAlu
 
 Route::get('ejercicios/{id}/alumno', [EjerciciosController::class, 'getAlumno']);
 Route::get('alumno/{id}/ejercicios', [AlumnosController::class, 'getAlumnoEjercicios']);
+
+Route::get('ejercicios/{id}/asignatura', [EjerciciosController::class, 'getAsignatura']);
+Route::get('asignatura/{id}/ejercicios', [AsignaturasController::class, 'getAsignaturaEjercicios']);

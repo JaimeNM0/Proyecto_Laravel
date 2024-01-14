@@ -13,4 +13,9 @@ class Ejercicio extends Model
     {
         return $this->belongsTo(Alumno::class);
     }
+
+    public function asignatura()
+    {
+        return $this->belongsTo(Asignatura::class);
+    }
 }

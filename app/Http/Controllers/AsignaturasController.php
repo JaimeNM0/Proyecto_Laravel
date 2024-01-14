@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\Ejercicio;
+use App\Models\Asignatura;
 use Exception;
 use Illuminate\Http\Request;
 
-class EjerciciosController extends Controller
+class AsignaturasController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -49,21 +49,12 @@ class EjerciciosController extends Controller
         //
     }
 
-    public function getAlumno($id)
+    public function getAsignaturaEjercicios($id)
     {
         try {
-            return $this->enviarResultado(true, 'Alumno obtenido correctamente.', data: Ejercicio::find($id)->alumno);
+            return $this->enviarResultado(true, 'Ejercicios obtenidos correctamente.', data: Asignatura::find($id)->ejercicios);
         } catch (Exception $e) {
-            return $this->enviarResultado(false, 'El ejercicio no se ha encontrado.', []);
-        }
-    }
-
-    public function getAsignatura($id)
-    {
-        try {
-            return $this->enviarResultado(true, 'Asignatura obtenido correctamente.', data: Ejercicio::find($id)->asignatura);
-        } catch (Exception $e) {
-            return $this->enviarResultado(false, 'El ejercicio no se ha encontrado.', []);
+            return $this->enviarResultado(false, 'El asignatura no se ha encontrado.', []);
         }
     }
 
