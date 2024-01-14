@@ -24,11 +24,7 @@ class AlumnosController extends Controller
                 'data' => $alumnos
             ]);
         } catch (Exception $e) {
-            return response([
-                'success' => false,
-                'message' => 'El alumno no se ha encontrado.',
-                'data' => $e
-            ]);
+            return $this->enviarResultado([], false, 'El alumno no se ha encontrado.');
         }
     }
 
@@ -42,24 +38,19 @@ class AlumnosController extends Controller
             'password' => 'required',
             'email' => 'required | unique:alumnos,email',
             'sexo' => 'required',
+            'edad' => 'nullable',
+            'telefono' => 'nullable',
         ]);
 
         $params['created_at'] = now();
 
         try {
-            $alumno = DB::table('alumnos')->insert($params);
+            DB::table('alumnos')->insert($params);
+            $alumno = Alumno::latest()->first();
 
-            return response([
-                'success' => true,
-                'message' => 'El alumno se ha creado correctamente.',
-                'data' => $alumno
-            ]);
+            return $this->enviarResultado($alumno, true, 'El alumno se ha creado correctamente.');
         } catch (Exception $e) {
-            return response([
-                'success' => false,
-                'message' => 'El alumno no se ha creado.',
-                'data' => $e
-            ]);
+            return $this->enviarResultado([], false, 'El alumno no se ha creado.');
         }
     }
 
@@ -72,23 +63,12 @@ class AlumnosController extends Controller
             $alumno = Alumno::find($id);
 
             if ($alumno == null) {
-                return response([
-                    'success' => false,
-                    'message' => 'El alumno no se ha encontrado.',
-                    'data' => []
-                ]);
+                return $this->enviarResultado([], false, 'El alumno no se ha encontrado.');
             }
-            return response([
-                'success' => true,
-                'message' => 'El alumno se ha encontrado.',
-                'data' => $alumno
-            ]);
+
+            return $this->enviarResultado($alumno, true, 'El alumno se ha encontrado.');
         } catch (Exception $e) {
-            return response([
-                'success' => false,
-                'message' => 'El alumno no se ha encontrado.',
-                'data' => $e
-            ]);
+            return $this->enviarResultado([], false, 'El alumno no se ha encontrado.');
         }
     }
 
@@ -98,26 +78,50 @@ class AlumnosController extends Controller
     public function update(Request $request, string $id)
     {
         $params = $request->validate([
+            'nombre' => 'nullable',
+            'password' => 'nullable',
             'email' => 'unique:alumnos,email',
+            'sexo' => 'nullable',
+            'edad' => 'nullable',
+            'telefono' => 'nullable',
         ]);
-
-        $params['updated_at'] = now();
 
         try {
             $alumno = Alumno::find($id);
-            $alumno->update($params);
 
-            return response([
-                'success' => true,
-                'message' => 'El alumno se ha actualizado correctamente.',
-                'data' => $alumno
-            ]);
+            if ($alumno == null) {
+                return $this->enviarResultado([], false, 'El alumno no se ha encontrado.');
+            }
+
+            if (!empty($params['nombre'])) {
+                $alumno->nombre = $params['nombre'];
+            }
+
+            if (!empty($params['password'])) {
+                $alumno->password = $params['password'];
+            }
+
+            if (!empty($params['email'])) {
+                $alumno->email = $params['email'];
+            }
+
+            if (!empty($params['sexo'])) {
+                $alumno->sexo = $params['sexo'];
+            }
+
+            if (!empty($params['edad'])) {
+                $alumno->edad = $params['edad'];
+            }
+
+            if (!empty($params['telefono'])) {
+                $alumno->telefono = $params['telefono'];
+            }
+
+            $alumno->update();
+
+            return $this->enviarResultado($alumno, true, 'El alumno se ha actualizado correctamente.');
         } catch (Exception $e) {
-            return response([
-                'success' => false,
-                'message' => 'El alumno no existe.',
-                'data' => $e
-            ]);
+            return $this->enviarResultado([], false, 'El alumno no se ha actualizado.');
         }
     }
 
@@ -130,26 +134,23 @@ class AlumnosController extends Controller
             $alumno = Alumno::find($id);
 
             if ($alumno == null) {
-                return response([
-                    'success' => false,
-                    'message' => 'El alumno no se ha encontrado, entonces, puede estar ya borrado.',
-                    'data' => []
-                ]);
+                return $this->enviarResultado([], false, 'El alumno no se ha encontrado, entonces, puede estar ya borrado.');
             }
 
             $alumno->delete();
 
-            return response([
-                'success' => true,
-                'message' => 'El alumno se ha borrado correctamente.',
-                'data' => []
-            ]);
+            return $this->enviarResultado([], true, 'El alumno se ha borrado correctamente.');
         } catch (Exception $e) {
-            return response([
-                'success' => false,
-                'message' => 'El alumno no se ha borrado.',
-                'data' => []
-            ]);
+            return $this->enviarResultado([], false, 'El alumno no se ha borrado.');
         }
+    }
+
+    public function enviarResultado($data, bool $success, string $message)
+    {
+        return response([
+            'success' => $success,
+            'message' => $message,
+            'data' => $data
+        ]);
     }
 }
