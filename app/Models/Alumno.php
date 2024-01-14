@@ -17,4 +17,9 @@ class Alumno extends Model
     {
         return $this->belongsTo(Profesor::class);
     }
+
+    public function ejercicios()
+    {
+        return $this->hasMany(Ejercicio::class);
+    }
 }

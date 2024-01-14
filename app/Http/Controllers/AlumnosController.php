@@ -160,6 +160,15 @@ class AlumnosController extends Controller
         }
     }
 
+    public function getAlumnoEjercicios($id)
+    {
+        try {
+            return $this->enviarResultado(true, 'Ejercicios obtenidos correctamente.', data: Alumno::find($id)->ejercicios);
+        } catch (Exception $e) {
+            return $this->enviarResultado(false, 'El alumno no se ha encontrado.', []);
+        }
+    }
+
     public function enviarResultado(bool $success, string $message, mixed $data, $status = 200)
     {
         return response([
