@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Alumno;
+use App\Models\Profesor;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,13 +19,9 @@ class AlumnosController extends Controller
         try {
             $alumnos = Alumno::all();
 
-            return response([
-                'success' => true,
-                'message' => 'Todos los alumnos se han enviado.',
-                'data' => $alumnos
-            ]);
+            return $this->enviarResultado(true, 'Todos los alumnos se han enviado.', $alumnos);
         } catch (Exception $e) {
-            return $this->enviarResultado([], false, 'El alumno no se ha encontrado.');
+            return $this->enviarResultado(false, 'El alumno no se ha encontrado.', []);
         }
     }
 
@@ -48,9 +45,9 @@ class AlumnosController extends Controller
             DB::table('alumnos')->insert($params);
             $alumno = Alumno::latest()->first();
 
-            return $this->enviarResultado($alumno, true, 'El alumno se ha creado correctamente.');
+            return $this->enviarResultado(true, 'El alumno se ha creado correctamente.', $alumno);
         } catch (Exception $e) {
-            return $this->enviarResultado([], false, 'El alumno no se ha creado.');
+            return $this->enviarResultado(false, 'El alumno no se ha creado.', []);
         }
     }
 
@@ -63,12 +60,12 @@ class AlumnosController extends Controller
             $alumno = Alumno::find($id);
 
             if ($alumno == null) {
-                return $this->enviarResultado([], false, 'El alumno no se ha encontrado.');
+                return $this->enviarResultado(false, 'El alumno no se ha encontrado.', []);
             }
 
-            return $this->enviarResultado($alumno, true, 'El alumno se ha encontrado.');
+            return $this->enviarResultado(true, 'El alumno se ha encontrado.', $alumno);
         } catch (Exception $e) {
-            return $this->enviarResultado([], false, 'El alumno no se ha encontrado.');
+            return $this->enviarResultado(false, 'El alumno no se ha encontrado.', []);
         }
     }
 
@@ -90,7 +87,7 @@ class AlumnosController extends Controller
             $alumno = Alumno::find($id);
 
             if ($alumno == null) {
-                return $this->enviarResultado([], false, 'El alumno no se ha encontrado.');
+                return $this->enviarResultado(false, 'El alumno no se ha encontrado.', []);
             }
 
             if (!empty($params['nombre'])) {
@@ -119,9 +116,9 @@ class AlumnosController extends Controller
 
             $alumno->update();
 
-            return $this->enviarResultado($alumno, true, 'El alumno se ha actualizado correctamente.');
+            return $this->enviarResultado(true, 'El alumno se ha actualizado correctamente.', $alumno);
         } catch (Exception $e) {
-            return $this->enviarResultado([], false, 'El alumno no se ha actualizado.');
+            return $this->enviarResultado(false, 'El alumno no se ha actualizado.', []);
         }
     }
 
@@ -134,23 +131,41 @@ class AlumnosController extends Controller
             $alumno = Alumno::find($id);
 
             if ($alumno == null) {
-                return $this->enviarResultado([], false, 'El alumno no se ha encontrado, entonces, puede estar ya borrado.');
+                return $this->enviarResultado(false, 'El alumno no se ha encontrado, entonces, puede estar ya borrado.', []);
             }
 
             $alumno->delete();
 
-            return $this->enviarResultado([], true, 'El alumno se ha borrado correctamente.');
+            return $this->enviarResultado(true, 'El alumno se ha borrado correctamente.', []);
         } catch (Exception $e) {
-            return $this->enviarResultado([], false, 'El alumno no se ha borrado.');
+            return $this->enviarResultado(false, 'El alumno no se ha borrado.', []);
         }
     }
 
-    public function enviarResultado($data, bool $success, string $message)
+    public function getProfesor($id)
+    {
+        try {
+            /*$alumno = Alumno::find($id);
+
+            if ($alumno->profesor_id == null) {
+                return $this->enviarResultado(false, 'El alumno no tiene profesor.', []);
+            }
+
+            $profesor = Profesor::find($alumno->profesor_id);
+
+            return $this->enviarResultado(true, 'Profesor obtenido correctamente.', $profesor);*/
+            return $this->enviarResultado(true, 'Profesor obtenido correctamente.', data: Alumno::find($id)->profesor);
+        } catch (Exception $e) {
+            return $this->enviarResultado(false, 'El alumno no se ha encontrado.', []);
+        }
+    }
+
+    public function enviarResultado(bool $success, string $message, mixed $data, $status = 200)
     {
         return response([
             'success' => $success,
             'message' => $message,
             'data' => $data
-        ]);
+        ], $status);
     }
 }

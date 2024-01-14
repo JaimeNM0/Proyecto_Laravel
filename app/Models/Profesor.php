@@ -5,16 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Alumno extends Model
+class Profesor extends Model
 {
     use HasFactory;
 
-    protected $hidden = [
-        'password'
-    ];
-
-    public function profesor()
+    public function alumnos()
     {
-        return $this->belongsTo(Profesor::class);
+        return $this->hasMany(Alumno::class);
     }
 }
