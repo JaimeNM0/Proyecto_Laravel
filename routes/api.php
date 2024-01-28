@@ -3,7 +3,9 @@
 use App\Http\Controllers\AlumnosController;
 use App\Http\Controllers\AsignaturasController;
 use App\Http\Controllers\EjerciciosController;
+use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ProfesorsController;
+use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\VerifyId;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -18,6 +20,11 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+//TODO route del login
+Route::post('login', [LoginController::class, 'login']);
+Route::post('logueado', [LoginController::class, 'logueado']);
+Route::post('logout', [LoginController::class, 'logout']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
