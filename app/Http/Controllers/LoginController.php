@@ -24,10 +24,10 @@ class LoginController extends Controller
             }
 
             $token = $user->createToken('token');
-            $user['remember_token'] = $token->accessToken['token'];
+            $user->remember_token = $token->accessToken['token'];
             $user->save();
 
-            return $this->enviarResultado(true, 'El user se ha logueado.', []);
+            return $this->enviarResultado(true, 'El user se ha logueado.', $user->remember_token);
         }
 
         return $this->enviarResultado(false, 'El user no se ha encontrado.', []);
@@ -57,7 +57,7 @@ class LoginController extends Controller
         $user = User::where('remember_token', '=', $params['remember_token'])->first();
 
         if ($user != null) {
-            $user['remember_token'] = null;
+            $user->remember_token = null;
             $user->save();
             return $this->enviarResultado(true, 'El user se ha deslogueado.', []);
         }
