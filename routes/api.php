@@ -5,6 +5,7 @@ use App\Http\Controllers\AsignaturasController;
 use App\Http\Controllers\EjerciciosController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ProfesorsController;
+use App\Http\Controllers\UsersController;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\VerifyId;
 use App\Http\Middleware\VerifyLogueado;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::post('registrar', [UsersController::class, 'registrar']);
 //TODO route del login
 Route::post('login', [LoginController::class, 'login']);
 Route::middleware(VerifyLogueado::class)->post('logueado', [LoginController::class, 'logueado']);

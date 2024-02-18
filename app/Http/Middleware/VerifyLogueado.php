@@ -27,7 +27,7 @@ class VerifyLogueado
                 'success' => false,
                 'message' => 'No estás logueado.',
                 'data' => []
-            ], 403);
+            ], 401);
         }
 
         return $next($request);
