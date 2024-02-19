@@ -17,7 +17,7 @@ class VerifyLogueado
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $token = $request->header('token');
+        /*$token = $request->header('token');
         $access = DB::table('personal_access_tokens')->where('token', '=', $token)->first();
 
         if ($access == null) {
@@ -26,7 +26,7 @@ class VerifyLogueado
                 'message' => 'No estás logueado.',
                 'data' => []
             ], 401);
-        }
+        }*/
 
         return $next($request);
     }

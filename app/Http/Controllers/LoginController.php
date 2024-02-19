@@ -23,25 +23,22 @@ class LoginController extends Controller
             return $this->enviarResultado(false, 'Solo puedes introducir uno de los dos campos name o email.', [], 400);
         }
 
-        if (Auth::attempt($params)) {
-            if (Auth::user()->tokens->isNotEmpty()) {
-                return $this->enviarResultado(true, 'El usuario ya esta logueado.', Auth::user()->tokens);
-            }
-            $token = Auth::user()->createToken('token');
-            return $this->enviarResultado(true, 'El user se ha logueado.', $token->accessToken->token);
+        if (!Auth::attempt($params)) {
+            return $this->enviarResultado(false, 'El user no se ha encontrado.', []);
         }
 
-        return $this->enviarResultado(false, 'El user no se ha encontrado.', []);
+        if (Auth::user()->tokens->isNotEmpty()) {
+            return $this->enviarResultado(true, 'El usuario ya esta logueado.', []);
+        }
+
+        $token = Auth::user()->createToken('token')->plainTextToken;
+        return $this->enviarResultado(true, 'El user se ha logueado.', $token);//->accessToken->token);
     }
 
     public function logueado(Request $request)
     {
-        $token = $request->header('token');
-        $access = DB::table('personal_access_tokens')->where('token', '=', $token)->first();
-        $user = User::where('id', '=', $access->tokenable_id)->first();
-
-        if ($user != null) {
-            return $this->enviarResultado(true, 'El user está logueado.', $user);
+        if (Auth::user() != null) {
+            return $this->enviarResultado(true, 'El user está logueado.', Auth::user());
         }
 
         return $this->enviarResultado(false, 'El user no está logueado.', []);
@@ -49,16 +46,12 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
-        $token = $request->header('token');
-        $access = DB::table('personal_access_tokens')->where('token', '=', $token)->first();
-        $user = User::where('id', '=', $access->tokenable_id)->first();
-
+        $user = Auth::user();
         if ($user != null) {
             $tokens = $user->tokens;
             foreach ($tokens as $token) {
                 $token->delete();
             }
-            Auth::logout();
             return $this->enviarResultado(true, 'El user se ha deslogueado.', []);
         }
 
