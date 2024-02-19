@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
 class VerifyLogueado
@@ -16,13 +17,10 @@ class VerifyLogueado
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $params = $request->validate([
-            'remember_token' => 'required'
-        ]);
+        $token = $request->header('token');
+        $access = DB::table('personal_access_tokens')->where('token', '=', $token)->first();
 
-        $user = User::where('remember_token', '=', $params['remember_token'])->first();
-
-        if ($user == null) {
+        if ($access == null) {
             return response([
                 'success' => false,
                 'message' => 'No estás logueado.',
