@@ -14,40 +14,35 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $params = $request->validate([
-            'name' => 'required_without:email',
+            'email' => 'required',
             'password' => 'required',
-            'email' => 'required_without:name',
         ]);
 
-        if (isset($params['name']) && isset($params['email'])) {
-            return $this->enviarResultado(false, 'Solo puedes introducir uno de los dos campos name o email.', [], 400);
-        }
-
-        if (!Auth::attempt($params)) {
-            return $this->enviarResultado(false, 'El user no se ha encontrado.', []);
-        }
-
-        if (Auth::user()->tokens->isNotEmpty()) {
+        if (Auth::guard('api')->check()) {
             return $this->enviarResultado(true, 'El usuario ya esta logueado.', []);
         }
 
+        if (!Auth::attempt($params)) {
+            return $this->enviarResultado(false, 'El user no se ha encontrado.', [], 401);
+        }
+
         $token = Auth::user()->createToken('token')->plainTextToken;
-        return $this->enviarResultado(true, 'El user se ha logueado.', $token);//->accessToken->token);
+        return $this->enviarResultado(true, 'El user se ha logueado.', $token); //->accessToken->token);
     }
 
     public function logueado(Request $request)
     {
-        if (Auth::user() != null) {
+        if (Auth::check()) {
             return $this->enviarResultado(true, 'El user está logueado.', Auth::user());
         }
 
-        return $this->enviarResultado(false, 'El user no está logueado.', []);
+        return $this->enviarResultado(false, 'El user no está logueado.', [], 401);
     }
 
     public function logout(Request $request)
     {
-        $user = Auth::user();
-        if ($user != null) {
+        if(Auth::check()){
+            $user = Auth::user();
             $tokens = $user->tokens;
             foreach ($tokens as $token) {
                 $token->delete();
@@ -55,6 +50,6 @@ class LoginController extends Controller
             return $this->enviarResultado(true, 'El user se ha deslogueado.', []);
         }
 
-        return $this->enviarResultado(false, 'El user no se ha encontrado.', []);
+        return $this->enviarResultado(false, 'El user no se ha encontrado.', [], 401);
     }
 }
