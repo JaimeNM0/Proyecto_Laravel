@@ -26,8 +26,8 @@ use Illuminate\Support\Facades\Route;
 Route::post('registrar', [UsersController::class, 'registrar']);
 //TODO route del login
 Route::post('login', [LoginController::class, 'login']);
-Route::middleware(VerifyLogueado::class)->get('logueado', [LoginController::class, 'logueado']);
-Route::middleware(VerifyLogueado::class)->get('logout', [LoginController::class, 'logout']);
+Route::middleware('auth:api')->get('logueado', [LoginController::class, 'logueado']);
+Route::middleware('auth:api')->get('logout', [LoginController::class, 'logout']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

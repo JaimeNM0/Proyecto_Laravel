@@ -14,54 +14,46 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $params = $request->validate([
-            'name' => 'required_without:email',
+            'user' => 'required',
             'password' => 'required',
-            'email' => 'required_without:name',
+            //'name' => 'required_without:email',
+            //'email' => 'required_without:name',
         ]);
 
-        if (isset($params['name']) && isset($params['email'])) {
-            return $this->enviarResultado(false, 'Solo puedes introducir uno de los dos campos name o email.', [], 400);
+        if (Auth::guard('api')->check()) {
+            return $this->enviarResultado(true, 'El usuario ya se ha logueado.', [], 200);
         }
 
-        if (Auth::attempt($params)) {
-            if (Auth::user()->tokens->isNotEmpty()) {
-                return $this->enviarResultado(true, 'El usuario ya esta logueado.', Auth::user()->tokens);
-            }
-            $token = Auth::user()->createToken('token');
-            return $this->enviarResultado(true, 'El user se ha logueado.', $token->accessToken->token);
+        if (Auth::attempt(['name' => $params['user'],'password' => $params['password']]) || Auth::attempt(['email' => $params['user'],'password' => $params['password']])) {
+            $user = Auth::user();
+            $token = $user->createToken('tokenJWT')->accessToken;
+            return $this->enviarResultado(true, 'El user se ha logueado.', $token);
         }
 
-        return $this->enviarResultado(false, 'El user no se ha encontrado.', []);
+        return $this->enviarResultado(false, 'El user no se ha encontrado.', [], 401);
     }
 
     public function logueado(Request $request)
     {
-        $token = $request->header('token');
-        $access = DB::table('personal_access_tokens')->where('token', '=', $token)->first();
-        $user = User::where('id', '=', $access->tokenable_id)->first();
-
-        if ($user != null) {
+        if (Auth::check()) {
+            $user = Auth::user();
             return $this->enviarResultado(true, 'El user está logueado.', $user);
         }
 
-        return $this->enviarResultado(false, 'El user no está logueado.', []);
+        return $this->enviarResultado(false, 'El user no está logueado.', [], 401);
     }
 
     public function logout(Request $request)
     {
-        $token = $request->header('token');
-        $access = DB::table('personal_access_tokens')->where('token', '=', $token)->first();
-        $user = User::where('id', '=', $access->tokenable_id)->first();
-
-        if ($user != null) {
+        if (Auth::check()) {
+            $user = Auth::user();
             $tokens = $user->tokens;
             foreach ($tokens as $token) {
                 $token->delete();
             }
-            Auth::logout();
             return $this->enviarResultado(true, 'El user se ha deslogueado.', []);
         }
 
-        return $this->enviarResultado(false, 'El user no se ha encontrado.', []);
+        return $this->enviarResultado(false, 'El user no se ha encontrado.', [], 401);
     }
 }
