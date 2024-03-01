@@ -27,29 +27,21 @@ class LoginController extends Controller
         }
 
         $token = Auth::user()->createToken('token')->plainTextToken;
-        return $this->enviarResultado(true, 'El user se ha logueado.', $token); //->accessToken->token);
+        return $this->enviarResultado(true, 'El user se ha logueado.', $token);
     }
 
     public function logueado(Request $request)
     {
-        if (Auth::check()) {
-            return $this->enviarResultado(true, 'El user está logueado.', Auth::user());
-        }
-
-        return $this->enviarResultado(false, 'El user no está logueado.', [], 401);
+        return $this->enviarResultado(true, 'El user está logueado.', Auth::guard('api')->user());
     }
 
     public function logout(Request $request)
     {
-        if(Auth::check()){
-            $user = Auth::user();
-            $tokens = $user->tokens;
-            foreach ($tokens as $token) {
-                $token->delete();
-            }
-            return $this->enviarResultado(true, 'El user se ha deslogueado.', []);
+        $user = Auth::guard('api')->user();
+        $tokens = $user->tokens;
+        foreach ($tokens as $token) {
+            $token->delete();
         }
-
-        return $this->enviarResultado(false, 'El user no se ha encontrado.', [], 401);
+        return $this->enviarResultado(true, 'El user se ha deslogueado.', []);
     }
 }
